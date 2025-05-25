@@ -6,7 +6,7 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 11:53:02 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/05/25 11:53:02 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/05/25 12:46:07 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <string.h>
 # include <errno.h>
 # include <signal.h>
+# include <termios.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 
@@ -166,4 +167,3 @@ char		*create_heredoc_file(void);
 void		cleanup_heredoc(char *filename);
 
 #endif
-

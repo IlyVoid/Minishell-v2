@@ -6,7 +6,7 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 11:53:02 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/05/25 11:53:02 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/05/25 12:40:51 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ void	shell_loop(t_shell *shell)
  * @param envp Environment variables
  * @return Exit status
  */
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_shell	*shell;
