@@ -17,6 +17,7 @@
  * @param cmd Command name to check
  * @return 1 if the command is a built-in, 0 otherwise
  */
+
 int	is_builtin(char *cmd)
 {
 	if (!cmd)

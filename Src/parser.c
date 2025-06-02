@@ -18,6 +18,7 @@
  * @param value Value of the token
  * @return Newly created token node
  */
+
 static t_token	*create_token(t_token_type type, char *value)
 {
 	t_token	*token;

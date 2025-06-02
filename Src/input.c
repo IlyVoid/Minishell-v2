@@ -17,6 +17,7 @@
  * @param str String to check
  * @return 1 if whitespace only, 0 otherwise
  */
+
 static int	is_whitespace_only(char *str)
 {
 	int	i;
@@ -38,6 +39,7 @@ static int	is_whitespace_only(char *str)
  * @param shell Shell structure
  * @param error_type Type of error
  */
+
 void	handle_parse_error(t_shell *shell, int error_type)
 {
 	if (!shell)

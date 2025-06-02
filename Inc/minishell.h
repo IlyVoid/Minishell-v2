@@ -89,10 +89,12 @@ typedef struct s_shell
 	t_command	*commands;
 	struct termios	orig_termios;
 	int			term_saved;
-	int			signal_state;
 	int			heredoc_active;
 	char		*heredoc_file;
 }	t_shell;
+
+/* Global signal variable - stores only the signal number */
+extern int g_received_signal;
 
 /* Parser functions */
 t_token		*tokenize_input(char *input);
@@ -165,5 +167,8 @@ void		syntax_error(char *token);
 char		*handle_heredoc(char *delimiter, t_env *env_list, int exit_status);
 char		*create_heredoc_file(void);
 void		cleanup_heredoc(char *filename);
+
+/* Prompts */
+char *get_shell_input(t_shell *shell);
 
 #endif
