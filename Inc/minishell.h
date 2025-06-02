@@ -111,20 +111,50 @@ int			set_env_value(t_env *env_list, char *key, char *value);
 int			unset_env_value(t_env **env_list, char *key);
 char		**env_to_array(t_env *env_list);
 
-/* Executor functions */
-int			execute_commands(t_command *commands, t_shell *shell);
-int			execute_builtin(t_command *cmd, t_shell *shell);
-int			is_builtin(char *cmd);
-int			setup_redirections(t_redirection *redirections);
-
-/* Builtin functions */
+/* Builtin function declarations - basic commands */
 int			builtin_echo(t_command *cmd, t_shell *shell);
-int			builtin_cd(t_command *cmd, t_shell *shell);
 int			builtin_pwd(t_command *cmd, t_shell *shell);
+
+/* Builtin function declarations - directory operations */
+int			builtin_cd(t_command *cmd, t_shell *shell);
+
+/* Builtin function declarations - environment operations */
 int			builtin_export(t_command *cmd, t_shell *shell);
 int			builtin_unset(t_command *cmd, t_shell *shell);
 int			builtin_env(t_command *cmd, t_shell *shell);
+
+/* Builtin function declarations - shell control */
 int			builtin_exit(t_command *cmd, t_shell *shell);
+
+/* Builtin utility functions */
+int			is_valid_variable_name(char *var);
+int			parse_variable_assignment(char *arg, char **key, char **value);
+int			is_numeric(char *str);
+
+/* Executor core functions */
+int			execute_commands(t_command *commands, t_shell *shell);
+int			execute_builtin(t_command *cmd, t_shell *shell);
+int			is_builtin(char *cmd);
+int			execute_single_command(t_command *cmd, t_shell *shell, 
+				int in_fd, int out_fd);
+void		execute_child_process(t_command *cmd, t_shell *shell,
+				int in_fd, int out_fd);
+int			execute_builtin_directly(t_command *cmd, t_shell *shell, int out_fd);
+
+/* Executor redirection handling */
+int			setup_redirections(t_redirection *redirections);
+void		cleanup_heredoc_files(t_command *cmd);
+void		cleanup_all_heredocs(t_command *commands);
+int			is_heredoc_file(char *filename);
+
+/* Executor path resolution */
+char		*find_command_path(char *cmd, t_env *env_list);
+
+/* Executor utility functions */
+void		save_std_fds(int saved_fds[2]);
+void		restore_std_fds(int saved_fds[2]);
+int			get_exit_status(int status);
+void		free_string_array(char **arr);
 
 /* Utility functions */
 void		*ft_malloc(size_t size);
@@ -149,11 +179,20 @@ void		setup_exec_signals(void);
 void		setup_heredoc_signals(void);
 void		reset_signals(void);
 void		disable_signals(void);
-void		handle_sigint(int sig);
-void		handle_sigquit(int sig);
+void		handle_sigint_interactive(int sig);
+void		handle_sigint_exec(int sig);
+void		handle_sigint_heredoc(int sig);
+void		handle_sigquit_interactive(int sig);
+void		handle_sigquit_exec(int sig);
+void		set_signal_mode(t_shell *shell, int mode);
 
-/* Terminal handling */
-int			setup_terminal(t_shell *shell);
+/* Shell initialization and management */
+t_shell		*init_shell(char **envp);
+int			verify_shell_state(t_shell *shell);
+void		cleanup_shell(t_shell *shell);
+int			process_input(char *input, t_shell *shell);
+void		handle_interrupted_execution(t_shell *shell);
+void		shell_loop(t_shell *shell);
 void		restore_terminal(t_shell *shell);
 void		handle_signal_state(t_shell *shell);
 void		cleanup_interrupted_heredoc(t_shell *shell);

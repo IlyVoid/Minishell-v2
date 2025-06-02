@@ -5,7 +5,9 @@ READLINE = -lreadline
 
 # Source files
 SRC_DIR = Src/
-SRC_FILES = builtins.c cleanup.c env.c executor.c heredoc.c init.c input.c \
+SRC_FILES = builtins_basic.c builtins_dir.c builtins_env.c builtins_exit.c builtins_utils.c \
+           executor_core.c executor_pipe.c executor_redir.c executor_path.c executor_utils.c \
+           cleanup.c env.c heredoc.c init.c input.c \
            parser.c parser_syntax.c parser_tokens.c prompt.c signals.c \
            terminal.c utils.c
 
