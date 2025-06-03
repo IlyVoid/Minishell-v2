@@ -6,7 +6,7 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:58:00 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/06/02 17:58:00 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/06/02 18:14:16 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 extern int	g_received_signal;
 
 /* Execute builtin directly (without forking) */
-static int	execute_builtin_directly(t_command *cmd, t_shell *shell, int out_fd)
+int	execute_builtin_directly(t_command *cmd, t_shell *shell, int out_fd)
 {
 	int	status;
 	int	saved_fds[2];
@@ -37,7 +37,7 @@ static int	execute_builtin_directly(t_command *cmd, t_shell *shell, int out_fd)
 }
 
 /* Execute child process after fork */
-static void	execute_child_process(t_command *cmd, t_shell *shell,
+void	execute_child_process(t_command *cmd, t_shell *shell,
 	int in_fd, int out_fd)
 {
 	char	*cmd_path;

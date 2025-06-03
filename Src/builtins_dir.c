@@ -6,7 +6,7 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:58:00 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/06/02 17:58:00 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/06/02 18:10:58 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ static int	update_pwd_vars(t_shell *shell, char *old_pwd)
 /* Built-in cd command - changes current directory */
 int	builtin_cd(t_command *cmd, t_shell *shell)
 {
-	char	*path;
 	char	*old_pwd;
 	char	current_dir[4096];
 

@@ -6,7 +6,7 @@
 /*   By: quint <quint@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 11:53:02 by quint             #+#    #+#             */
-/*   Updated: 2025/05/25 12:47:00 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/06/02 18:16:49 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -476,3 +476,16 @@ void	syntax_error(char *token)
 	ft_putstr_fd("'\n", STDERR_FILENO);
 }
 
+
+char	*ft_strchr(const char *s, int c)
+{
+	while (*s != '\0')
+	{
+		if (*s == (char)c)
+			return ((char *)s);
+		s++;
+	}
+	if (*s == (char)c)
+		return ((char *)s);
+	return (NULL);
+}

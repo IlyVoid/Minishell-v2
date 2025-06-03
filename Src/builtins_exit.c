@@ -6,14 +6,14 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:58:00 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/06/02 17:58:00 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/06/02 18:13:15 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Inc/minishell.h"
 
 /* Check if a string is a valid numeric value */
-static int	is_numeric(char *str)
+int	is_numeric(char *str)
 {
 	int	i;
 
