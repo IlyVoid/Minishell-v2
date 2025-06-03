@@ -112,9 +112,9 @@ extern volatile sig_atomic_t g_received_signal;
 
 /* Parser functions */
 t_token		*tokenize_input(char *input);
-int			free_tokens(t_token *tokens);
+void		free_tokens(t_token *tokens);
 t_command	*parse_tokens(t_token *tokens, t_shell *shell);
-int			free_commands(t_command *commands);
+void		free_commands(t_command *commands);
 int			expand_variables(t_token *tokens, t_env *env_list, int exit_status);
 
 /* Environment functions */
@@ -190,6 +190,7 @@ char		*ft_strchr(const char *s, int c);
 void		*ft_memset(void *b, int c, size_t len);
 char		*ft_strrchr(const char *s, int c);
 char		*ft_strstr(char *str, char *to_find);
+void		ft_putchar_fd(char c, int fd);
 
 /* Signal handling */
 int			setup_signals(void);

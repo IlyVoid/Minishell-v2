@@ -541,3 +541,8 @@ void	*ft_memset(void *b, int c, size_t len)
 		*ptr++ = (unsigned char)c;
 	return (b);
 }
+
+void	ft_putchar_fd(char c, int fd)
+{
+	write(fd, &c, 1);
+}
