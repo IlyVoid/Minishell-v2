@@ -12,8 +12,6 @@
 
 #include "../Inc/minishell.h"
 
-void	free_env(t_env *env_list);
-
 /**
  * Create a new environment variable node
  * @param key Environment variable name
@@ -88,6 +86,28 @@ static int	parse_env_var(char *env_str, char **key, char **value)
 }
 
 /**
+ * Free all memory associated with environment variables
+ * @param env_list Linked list of environment variables
+ */
+void	free_env(t_env *env_list)
+{
+	t_env	*current;
+	t_env	*next;
+
+	current = env_list;
+	while (current)
+	{
+		next = current->next;
+		if (current->key)
+			free(current->key);
+		if (current->value)
+			free(current->value);
+		free(current);
+		current = next;
+	}
+}
+
+/**
  * Initialize environment variables from envp array
  * @param envp Array of environment variable strings
  * @return Linked list of environment variables
@@ -137,28 +157,6 @@ t_env	*init_env(char **envp)
 	}
 	
 	return (env_list);
-}
-
-/**
- * Free all memory associated with environment variables
- * @param env_list Linked list of environment variables
- */
-void	free_env(t_env *env_list)
-{
-	t_env	*current;
-	t_env	*next;
-
-	current = env_list;
-	while (current)
-	{
-		next = current->next;
-		if (current->key)
-			free(current->key);
-		if (current->value)
-			free(current->value);
-		free(current);
-		current = next;
-	}
 }
 
 /**
