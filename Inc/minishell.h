@@ -188,6 +188,7 @@ char		*ft_itoa(int n);
 int			ft_atoi(const char *str);
 char		*ft_strchr(const char *s, int c);
 void		*ft_memset(void *b, int c, size_t len);
+char		*ft_strrchr(const char *s, int c);
 
 /* Signal handling */
 int			setup_signals(void);
