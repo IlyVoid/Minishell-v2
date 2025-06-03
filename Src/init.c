@@ -55,11 +55,6 @@ int	verify_shell_state(t_shell *shell)
 {
 	if (!shell)
 		return (ERROR);
-	if (shell->signal_state < 0 || shell->signal_state > 2)
-	{
-		shell->signal_state = 0;
-		ft_putstr_fd("minishell: Warning: Invalid signal state\n", STDERR_FILENO);
-	}
 	if (shell->heredoc_active && !shell->heredoc_file)
 	{
 		shell->heredoc_active = 0;
