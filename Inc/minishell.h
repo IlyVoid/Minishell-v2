@@ -197,6 +197,7 @@ void		restore_terminal(t_shell *shell);
 void		handle_signal_state(t_shell *shell);
 void		cleanup_interrupted_heredoc(t_shell *shell);
 int			handle_history(char *input);
+int			setup_terminal(t_shell *shell);
 
 /* Error handling */
 void		print_error(char *cmd, char *arg, char *message);
