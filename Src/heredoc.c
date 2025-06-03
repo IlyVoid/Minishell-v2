@@ -45,10 +45,13 @@ char	*create_heredoc_file(void)
  * Clean up a heredoc temporary file
  * @param filename Path to the temporary file
  */
-void	cleanup_heredoc(char *filename)
+int cleanup_heredoc(char *filename)
 {
-	if (filename)
-		unlink(filename);
+	if (!filename)
+		return ERROR;
+	if (unlink(filename) == -1)
+		return ERROR;
+	return SUCCESS;
 }
 
 /**
