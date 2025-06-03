@@ -228,7 +228,11 @@ void		syntax_error(char *token);
 char		*handle_heredoc(char *delimiter, t_env *env_list, int exit_status);
 char		*create_heredoc_file(void); /* Returns NULL on error */
 int			cleanup_heredoc(char *filename);
+
 /* Prompts */
 char		*get_shell_input(t_shell *shell); /* Returns NULL on error or EOF */
+
+/* Cleanup */
+int			cleanup_command_resources(t_shell *shell);
 
 #endif
