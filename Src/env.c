@@ -12,6 +12,8 @@
 
 #include "../Inc/minishell.h"
 
+void	free_env(t_env *env_list);
+
 /**
  * Create a new environment variable node
  * @param key Environment variable name
