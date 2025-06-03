@@ -119,7 +119,7 @@ int			expand_variables(t_token *tokens, t_env *env_list, int exit_status);
 
 /* Environment functions */
 t_env		*init_env(char **envp);
-int			free_env(t_env *env_list);
+void		free_env(t_env *env_list);
 char		*get_env_value(t_env *env_list, char *key);
 int			set_env_value(t_env *env_list, char *key, char *value);
 int			unset_env_value(t_env **env_list, char *key);
