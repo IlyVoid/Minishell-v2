@@ -6,7 +6,7 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:58:00 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/06/02 17:58:00 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/06/03 17:30:22 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static int	is_valid_path(char *path)
 		return (0);
 		
 	// Disallow relative paths with .. for security
-	if (ft_strchr(path, "../") || ft_strcmp(path, "..") == 0)
+	if (ft_strstr(path, "../") || ft_strcmp(path, "..") == 0)
 		return (0);
 		
 	return (1);
