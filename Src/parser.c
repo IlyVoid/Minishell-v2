@@ -26,14 +26,25 @@ static t_token	*create_token(t_token_type type, char *value)
 	token = (t_token *)malloc(sizeof(t_token));
 	if (!token)
 		return (NULL);
+		
 	token->type = type;
-	token->value = ft_strdup(value);
-	if (!token->value && value)
-	{
-		free(token);
-		return (NULL);
-	}
 	token->next = NULL;
+	
+	// Handle value separately
+	if (value)
+	{
+		token->value = ft_strdup(value);
+		if (!token->value)
+		{
+			free(token);
+			return (NULL);
+		}
+	}
+	else
+	{
+		token->value = NULL;
+	}
+	
 	return (token);
 }
 
@@ -111,19 +122,36 @@ static char	*parse_quoted_string(char *input, int *i, char quote)
 	int		start;
 	int		len;
 
+	if (!input || !i)
+		return (NULL);
+		
 	(*i)++;
 	start = *i;
 	while (input[*i] && input[*i] != quote)
 		(*i)++;
+		
 	if (!input[*i])
 	{
-		ft_putstr_fd("minishell: syntax error: unclosed quote\n", STDERR_FILENO);
+		ft_putstr_fd("minishell: syntax error: unclosed ", STDERR_FILENO);
+		ft_putchar_fd(quote, STDERR_FILENO);
+		ft_putstr_fd(" quote\n", STDERR_FILENO);
 		return (NULL);
 	}
+	
 	len = *i - start;
+	if (len > 4096) // Reasonable maximum for quoted string
+	{
+		ft_putstr_fd("minishell: quoted string too long\n", STDERR_FILENO);
+		return (NULL);
+	}
+	
 	value = ft_substr(input, start, len);
 	if (!value)
+	{
+		ft_putstr_fd("minishell: memory allocation failed\n", STDERR_FILENO);
 		return (NULL);
+	}
+	
 	(*i)++;
 	return (value);
 }
@@ -245,6 +273,15 @@ t_token	*tokenize_input(char *input)
 
 	if (!input)
 		return (NULL);
+		
+	// Check for maximum command length to prevent buffer issues
+	if (ft_strlen(input) > 10000) // Reasonable maximum for command line
+	{
+		ft_putstr_fd("minishell: command line too long\n", STDERR_FILENO);
+		// No cleanup needed since no memory has been allocated yet
+		return (NULL);
+	}
+	
 	tokens = NULL;
 	i = 0;
 	while (input[i])
@@ -316,7 +353,25 @@ static int	add_redirection(t_command *cmd, t_token_type type, char *file)
 {
 	t_redirection	*redirection;
 	t_redirection	*current;
+	int				redir_count = 0;
 
+	if (!cmd || !file)
+		return (ERROR);
+		
+	// Check filename length
+	if (ft_strlen(file) > 255)
+	{
+		ft_putstr_fd("minishell: filename too long\n", STDERR_FILENO);
+		return (ERROR);
+	}
+	
+	// Check for pipe character in filename (basic validation)
+	if (ft_strchr(file, '|'))
+	{
+		ft_putstr_fd("minishell: invalid character in redirection filename\n", STDERR_FILENO);
+		return (ERROR);
+	}
+	
 	redirection = create_redirection(type, file);
 	if (!redirection)
 		return (ERROR);
@@ -328,10 +383,24 @@ static int	add_redirection(t_command *cmd, t_token_type type, char *file)
 	}
 	
 	current = cmd->redirections;
-	while (current->next)
-		current = current->next;
-	current->next = redirection;
+	redir_count = 1;
 	
+	while (current->next)
+	{
+		current = current->next;
+		redir_count++;
+		
+		// Limit number of redirections
+		if (redir_count > 16)
+		{
+			ft_putstr_fd("minishell: too many redirections\n", STDERR_FILENO);
+			free(redirection->file);
+			free(redirection);
+			return (ERROR);
+		}
+	}
+	
+	current->next = redirection;
 	return (SUCCESS);
 }
 
@@ -364,8 +433,15 @@ static int	add_argument(t_command *cmd, char *arg)
 	char	**new_args;
 	int		i;
 
-	if (!arg || !*arg)
+	if (!cmd || !arg || !*arg)
 		return (SUCCESS);
+	
+	// Check for maximum argument length
+	if (ft_strlen(arg) > 4096)
+	{
+		ft_putstr_fd("minishell: argument too long\n", STDERR_FILENO);
+		return (ERROR);
+	}
 	
 	if (!cmd->args)
 	{
@@ -387,6 +463,13 @@ static int	add_argument(t_command *cmd, char *arg)
 	while (cmd->args[i])
 		i++;
 	
+	// Check for maximum arguments
+	if (i >= 1024)
+	{
+		ft_putstr_fd("minishell: too many arguments\n", STDERR_FILENO);
+		return (ERROR);
+	}
+	
 	new_args = (char **)malloc(sizeof(char *) * (i + 2));
 	if (!new_args)
 		return (ERROR);
@@ -401,6 +484,13 @@ static int	add_argument(t_command *cmd, char *arg)
 	new_args[i] = ft_strdup(arg);
 	if (!new_args[i])
 	{
+		// Clean up on error
+		int j = 0;
+		while (j < i)
+		{
+			new_args[j] = NULL; // Don't free these - they're still in cmd->args
+			j++;
+		}
 		free(new_args);
 		return (ERROR);
 	}
@@ -421,12 +511,21 @@ static int	validate_syntax(t_token *tokens)
 {
 	t_token	*current;
 	int		expecting_word;
+	int		pipe_count;
 
 	if (!tokens)
 		return (ERROR);
 	
 	current = tokens;
 	expecting_word = 0;
+	pipe_count = 0;
+	
+	// Check if first token is a pipe
+	if (current->type == TOKEN_PIPE)
+	{
+		syntax_error("|");
+		return (ERROR);
+	}
 	
 	while (current)
 	{
@@ -441,10 +540,21 @@ static int	validate_syntax(t_token *tokens)
 		else if (expecting_word)
 			expecting_word = 0;
 		
-		if (current->type == TOKEN_PIPE && (!current->next || current->next->type == TOKEN_PIPE))
+		// Validate pipe syntax
+		if (current->type == TOKEN_PIPE)
 		{
-			syntax_error("|");
-			return (ERROR);
+			pipe_count++;
+			if (pipe_count > 16) // More reasonable limit for a basic shell
+			{
+				ft_putstr_fd("minishell: too many pipes\n", STDERR_FILENO);
+				return (ERROR);
+			}
+			
+			if (!current->next || current->next->type == TOKEN_PIPE)
+			{
+				syntax_error("|");
+				return (ERROR);
+			}
 		}
 		
 		// Additional syntax validation for redirections
@@ -600,7 +710,17 @@ t_command	*parse_tokens(t_token *tokens, t_shell *shell)
 					shell->env_list, shell->exit_status);
 				
 				// Reset signal handling for interactive mode
+				// Always restore signals, regardless of heredoc success
 				setup_signals();
+				
+				// Check if heredoc was interrupted by signal
+				if (g_received_signal)
+				{
+					shell->exit_status = 128 + g_received_signal;
+					g_received_signal = 0;
+					free_commands(commands);
+					return (NULL);
+				}
 				
 				if (!heredoc_file)
 				{
@@ -611,9 +731,12 @@ t_command	*parse_tokens(t_token *tokens, t_shell *shell)
 				// Add as a regular input redirection but with the temp file
 				if (add_redirection(current_cmd, TOKEN_REDIRECT_IN, heredoc_file) != SUCCESS)
 				{
+					// Always cleanup the heredoc file on error
 					cleanup_heredoc(heredoc_file);
 					free(heredoc_file);
 					free_commands(commands);
+					// Ensure signals are reset (redundant but safe)
+					setup_signals();
 					return (NULL);
 				}
 				
@@ -629,6 +752,29 @@ t_command	*parse_tokens(t_token *tokens, t_shell *shell)
 		}
 		
 		current_token = current_token->next;
+	}
+	
+	// Basic validation of commands
+	if (commands)
+	{
+		t_command *cmd = commands;
+		while (cmd)
+		{
+			// Check if any command has empty arguments after redirections
+			if (!cmd->args || !cmd->args[0])
+			{
+				if (cmd->redirections)
+				{
+					// If it has redirections, add a dummy command
+					if (add_argument(cmd, "") != SUCCESS)
+					{
+						free_commands(commands);
+						return (NULL);
+					}
+				}
+			}
+			cmd = cmd->next;
+		}
 	}
 	
 	return (commands);
@@ -654,9 +800,19 @@ static char	*extract_var_name(char *str)
 	int		i;
 	char	*var_name;
 
+	if (!str)
+		return (NULL);
+		
 	i = 0;
 	while (str[i] && is_valid_var_char(str[i]))
 		i++;
+	
+	// Limit variable name length to avoid excessive memory usage
+	if (i > 256)
+	{
+		ft_putstr_fd("minishell: variable name too long\n", STDERR_FILENO);
+		return (NULL);
+	}
 	
 	var_name = ft_substr(str, 0, i);
 	if (!var_name)
@@ -675,17 +831,19 @@ static char	*extract_var_name(char *str)
  */
 static int	expand_var(t_token *token, int var_pos, t_env *env_list, int exit_status)
 {
-	char	*before;
-	char	*var_name;
-	char	*var_value;
-	char	*after;
-	char	*result;
+	char	*before = NULL;
+	char	*var_name = NULL;
+	char	*var_value = NULL;
+	char	*after = NULL;
+	char	*result = NULL;
 	int		i;
 
+	// Extract the part before the variable
 	before = ft_substr(token->value, 0, var_pos);
 	if (!before)
 		return (ERROR);
 	
+	// Handle special case for $?
 	if (token->value[var_pos + 1] == '?')
 	{
 		var_value = ft_itoa(exit_status);
@@ -693,6 +851,7 @@ static int	expand_var(t_token *token, int var_pos, t_env *env_list, int exit_sta
 	}
 	else
 	{
+		// Extract variable name
 		var_name = extract_var_name(token->value + var_pos + 1);
 		if (!var_name)
 		{
@@ -700,22 +859,26 @@ static int	expand_var(t_token *token, int var_pos, t_env *env_list, int exit_sta
 			return (ERROR);
 		}
 		
-		var_value = get_env_value(env_list, var_name);
-		if (!var_value)
+		// Get variable value or empty string if not found
+		char *env_value = get_env_value(env_list, var_name);
+		if (!env_value)
 			var_value = ft_strdup("");
 		else
-			var_value = ft_strdup(var_value);
+			var_value = ft_strdup(env_value);
 		
 		i = ft_strlen(var_name) + 1;
 		free(var_name);
+		var_name = NULL;
 	}
 	
+	// Check if variable value retrieval failed
 	if (!var_value)
 	{
 		free(before);
 		return (ERROR);
 	}
 	
+	// Extract the part after the variable
 	after = ft_strdup(token->value + var_pos + i);
 	if (!after)
 	{
@@ -724,9 +887,12 @@ static int	expand_var(t_token *token, int var_pos, t_env *env_list, int exit_sta
 		return (ERROR);
 	}
 	
+	// Join the parts
 	result = ft_strjoin(before, var_value);
 	free(before);
+	before = NULL;
 	free(var_value);
+	var_value = NULL;
 	
 	if (!result)
 	{
@@ -734,13 +900,17 @@ static int	expand_var(t_token *token, int var_pos, t_env *env_list, int exit_sta
 		return (ERROR);
 	}
 	
+	// Join with the part after
 	before = ft_strjoin(result, after);
 	free(result);
+	result = NULL;
 	free(after);
+	after = NULL;
 	
 	if (!before)
 		return (ERROR);
 	
+	// Replace token value with expanded string
 	free(token->value);
 	token->value = before;
 	

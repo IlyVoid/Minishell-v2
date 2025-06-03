@@ -15,16 +15,26 @@
 
 # include <stdio.h>
 # include <stdlib.h>
-# include <unistd.h>
-# include <fcntl.h>
-# include <sys/wait.h>
-# include <sys/stat.h>
-# include <sys/types.h>
-# include <dirent.h>
 # include <string.h>
 # include <errno.h>
-# include <signal.h>
-# include <termios.h>
+
+# ifdef _WIN32
+/* Windows-specific headers */
+#  include <io.h>
+#  include <process.h>
+#  include <windows.h>
+# else
+/* Unix-specific headers */
+#  include <unistd.h>
+#  include <fcntl.h>
+#  include <sys/wait.h>
+#  include <sys/stat.h>
+#  include <sys/types.h>
+#  include <dirent.h>
+#  include <signal.h>
+#  include <termios.h>
+# endif
+
 # include <readline/readline.h>
 # include <readline/history.h>
 
@@ -91,21 +101,25 @@ typedef struct s_shell
 	int			term_saved;
 	int			heredoc_active;
 	char		*heredoc_file;
+	int			signal_state;
 }	t_shell;
 
-/* Global signal variable - stores only the signal number */
-extern int g_received_signal;
+/* Global signal variable - stores only the signal number 
+ * Volatile ensures it's not optimized out by compiler
+ * sig_atomic_t ensures atomic access to prevent race conditions
+ */
+extern volatile sig_atomic_t g_received_signal;
 
 /* Parser functions */
 t_token		*tokenize_input(char *input);
-void		free_tokens(t_token *tokens);
+int			free_tokens(t_token *tokens);
 t_command	*parse_tokens(t_token *tokens, t_shell *shell);
-void		free_commands(t_command *commands);
+int			free_commands(t_command *commands);
 int			expand_variables(t_token *tokens, t_env *env_list, int exit_status);
 
 /* Environment functions */
 t_env		*init_env(char **envp);
-void		free_env(t_env *env_list);
+int			free_env(t_env *env_list);
 char		*get_env_value(t_env *env_list, char *key);
 int			set_env_value(t_env *env_list, char *key, char *value);
 int			unset_env_value(t_env **env_list, char *key);
@@ -137,24 +151,24 @@ int			execute_builtin(t_command *cmd, t_shell *shell);
 int			is_builtin(char *cmd);
 int			execute_single_command(t_command *cmd, t_shell *shell, 
 				int in_fd, int out_fd);
-void		execute_child_process(t_command *cmd, t_shell *shell,
+int			execute_child_process(t_command *cmd, t_shell *shell,
 				int in_fd, int out_fd);
 int			execute_builtin_directly(t_command *cmd, t_shell *shell, int out_fd);
 
 /* Executor redirection handling */
 int			setup_redirections(t_redirection *redirections);
-void		cleanup_heredoc_files(t_command *cmd);
-void		cleanup_all_heredocs(t_command *commands);
+int			cleanup_heredoc_files(t_command *cmd);
+int			cleanup_all_heredocs(t_command *commands);
 int			is_heredoc_file(char *filename);
 
 /* Executor path resolution */
-char		*find_command_path(char *cmd, t_env *env_list);
+char		*find_command_path(char *cmd, t_env *env_list); /* Returns NULL if command not found */
 
 /* Executor utility functions */
-void		save_std_fds(int saved_fds[2]);
-void		restore_std_fds(int saved_fds[2]);
+int			save_std_fds(int saved_fds[2]);
+int			restore_std_fds(int saved_fds[2]);
 int			get_exit_status(int status);
-void		free_string_array(char **arr);
+int			free_string_array(char **arr);
 
 /* Utility functions */
 void		*ft_malloc(size_t size);
@@ -176,30 +190,33 @@ char		*ft_strchr(const char *s, int c);
 void		*ft_memset(void *b, int c, size_t len);
 
 /* Signal handling */
-void		setup_signals(void);
-void		setup_exec_signals(void);
-void		setup_heredoc_signals(void);
-void		reset_signals(void);
-void		disable_signals(void);
+int			setup_signals(void);
+int			setup_exec_signals(void);
+int			setup_heredoc_signals(void);
+int			reset_signals(void);
+int			disable_signals(void);
 void		handle_sigint_interactive(int sig);
 void		handle_sigint_exec(int sig);
 void		handle_sigint_heredoc(int sig);
 void		handle_sigquit_interactive(int sig);
 void		handle_sigquit_exec(int sig);
-void		set_signal_mode(t_shell *shell, int mode);
+int		set_signal_mode(t_shell *shell, int mode);
 
 /* Shell initialization and management */
 t_shell		*init_shell(char **envp);
 int			verify_shell_state(t_shell *shell);
-void		cleanup_shell(t_shell *shell);
+int			cleanup_shell(t_shell *shell);
 int			process_input(char *input, t_shell *shell);
 void		handle_interrupted_execution(t_shell *shell);
 void		shell_loop(t_shell *shell);
-void		restore_terminal(t_shell *shell);
-void		handle_signal_state(t_shell *shell);
-void		cleanup_interrupted_heredoc(t_shell *shell);
+int			restore_terminal(t_shell *shell);
+int			handle_signal_state(t_shell *shell);
+int			cleanup_interrupted_heredoc(t_shell *shell);
 int			handle_history(char *input);
 int			setup_terminal(t_shell *shell);
+int			recover_terminal_error(t_shell *shell);
+int			start_heredoc(t_shell *shell, char *file);
+int			end_heredoc(t_shell *shell);
 
 /* Error handling */
 void		print_error(char *cmd, char *arg, char *message);
@@ -207,10 +224,10 @@ void		syntax_error(char *token);
 
 /* Heredoc handling */
 char		*handle_heredoc(char *delimiter, t_env *env_list, int exit_status);
-char		*create_heredoc_file(void);
-void		cleanup_heredoc(char *filename);
+char		*create_heredoc_file(void); /* Returns NULL on error */
+int			cleanup_heredoc(char *filename);
 
 /* Prompts */
-char *get_shell_input(t_shell *shell);
+char		*get_shell_input(t_shell *shell); /* Returns NULL on error or EOF */
 
 #endif
