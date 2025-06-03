@@ -13,10 +13,6 @@
 #include "Inc/minishell.h"
 
 /**
- * Main shell loop
- * @param shell Shell structure
- */
-/**
  * Check if input is only whitespace
  * @param str The string to check
  * @return 1 if only whitespace, 0 otherwise
@@ -149,4 +145,3 @@ int	main(int argc, char **argv, char **envp)
 	cleanup_shell(shell);
 	return (exit_status);
 }
-
