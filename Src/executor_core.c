@@ -6,14 +6,14 @@
 /*   By: quvan-de <quvan-de@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:58:00 by quvan-de          #+#    #+#             */
-/*   Updated: 2025/06/02 17:58:00 by quvan-de         ###   ########.fr       */
+/*   Updated: 2025/06/03 17:22:24 by quvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Inc/minishell.h"
 
 /* External global signal variable */
-extern int	g_received_signal;
+extern volatile int	g_received_signal;
 
 /* Check if a command is a built-in shell command */
 int	is_builtin(char *cmd)
