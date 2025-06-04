@@ -27,39 +27,6 @@ int	setup_terminal(t_shell *shell)
 {
 	if (!shell)
 		return (ERROR);
-
-#ifdef _WIN32
-	// Windows-specific terminal setup
-	HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
-	DWORD mode;
-
-	if (hConsole == INVALID_HANDLE_VALUE)
-	{
-		print_error("GetStdHandle", NULL, "failed to get console handle");
-		return (ERROR);
-	}
-
-	// Get current console mode
-	if (!GetConsoleMode(hConsole, &mode))
-	{
-		print_error("GetConsoleMode", NULL, "failed to get console mode");
-		return (ERROR);
-	}
-
-	// Save original mode in a dummy structure for compatibility
-	shell->orig_termios.c_lflag = mode;
-	shell->term_saved = 1;
-
-	// Enable line input and echo input for normal operation
-	// We don't disable ENABLE_PROCESSED_INPUT to keep ctrl-c functionality
-	mode |= ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT;
-	
-	// Apply the modified settings
-	if (!SetConsoleMode(hConsole, mode))
-	{
-		print_error("SetConsoleMode", NULL, "failed to set console mode");
-		return (ERROR);
-	}
 	return (SUCCESS);
 }
 
@@ -76,22 +43,6 @@ int	restore_terminal(t_shell *shell)
 	// Only restore if we successfully saved the original attributes
 	if (shell->term_saved)
 	{
-#ifdef _WIN32
-		// Windows-specific terminal restoration
-		HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
-		
-		if (hConsole == INVALID_HANDLE_VALUE)
-		{
-			print_error("GetStdHandle", NULL, "failed to get console handle");
-			return (ERROR);
-		}
-		
-		// Restore original console mode
-		if (!SetConsoleMode(hConsole, shell->orig_termios.c_lflag))
-		{
-			print_error("SetConsoleMode", NULL, "failed to restore console mode");
-			return (ERROR);
-		}
 		shell->term_saved = 0;
 	}
 	
