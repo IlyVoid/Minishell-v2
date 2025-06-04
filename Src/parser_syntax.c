@@ -34,6 +34,34 @@ int	is_delimiter(char c)
 }
 
 /**
+ * Parse a quoted string
+ * @param input Input string
+ * @param i Pointer to the current position in the input
+ * @param quote Quote character (' or ")
+ * @return Parsed quoted string or NULL on error
+ */
+char	*parse_quoted_string(char *input, int *i, char quote)
+{
+	char	*value;
+	int		start;
+	int		len;
+
+	(*i)++;
+	start = *i;
+	while (input[*i] && input[*i] != quote)
+		(*i)++;
+	if (!input[*i])
+	{
+		ft_putstr_fd("minishell: syntax error: unclosed quote\n", STDERR_FILENO);
+		return (NULL);
+	}
+	len = *i - start;
+	value = ft_substr(input, start, len);
+	(*i)++;
+	return (value);
+}
+
+/**
  * Handle quoted string parsing
  * @param value Current value to append to
  * @param input Input string
@@ -96,34 +124,6 @@ char	*finalize_word(char *value, char *input, int start, int end)
 }
 
 /**
- * Parse a quoted string
- * @param input Input string
- * @param i Pointer to the current position in the input
- * @param quote Quote character (' or ")
- * @return Parsed quoted string or NULL on error
- */
-char	*parse_quoted_string(char *input, int *i, char quote)
-{
-	char	*value;
-	int		start;
-	int		len;
-
-	(*i)++;
-	start = *i;
-	while (input[*i] && input[*i] != quote)
-		(*i)++;
-	if (!input[*i])
-	{
-		ft_putstr_fd("minishell: syntax error: unclosed quote\n", STDERR_FILENO);
-		return (NULL);
-	}
-	len = *i - start;
-	value = ft_substr(input, start, len);
-	(*i)++;
-	return (value);
-}
-
-/**
  * Parse a redirection operator
  * @param input Input string
  * @param i Pointer to the current position in the input
@@ -164,6 +164,31 @@ t_token_type	parse_operator(char *input, int *i)
 }
 
 /**
+ * Validate operator syntax
+ * @param token Current token to check
+ * @return 1 if valid, 0 if invalid
+ */
+int	validate_operator_syntax(t_token *token)
+{
+	if (token->type == TOKEN_PIPE &&
+		(!token->next || token->next->type == TOKEN_PIPE))
+	{
+		syntax_error("|");
+		return (0);
+	}
+	if ((token->type == TOKEN_REDIRECT_IN ||
+		token->type == TOKEN_REDIRECT_OUT ||
+		token->type == TOKEN_REDIRECT_APPEND ||
+		token->type == TOKEN_HEREDOC) &&
+		(!token->next || token->next->type != TOKEN_WORD))
+	{
+		syntax_error("newline");
+		return (0);
+	}
+	return (1);
+}
+
+/**
  * Validate token syntax
  * @param tokens Token list to validate
  * @return SUCCESS or ERROR
@@ -199,29 +224,3 @@ int	validate_syntax(t_token *tokens)
 	}
 	return (SUCCESS);
 }
-
-/**
- * Validate operator syntax
- * @param token Current token to check
- * @return 1 if valid, 0 if invalid
- */
-int	validate_operator_syntax(t_token *token)
-{
-	if (token->type == TOKEN_PIPE && 
-		(!token->next || token->next->type == TOKEN_PIPE))
-	{
-		syntax_error("|");
-		return (0);
-	}
-	if ((token->type == TOKEN_REDIRECT_IN || 
-		token->type == TOKEN_REDIRECT_OUT || 
-		token->type == TOKEN_REDIRECT_APPEND || 
-		token->type == TOKEN_HEREDOC) && 
-		(!token->next || token->next->type != TOKEN_WORD))
-	{
-		syntax_error("newline");
-		return (0);
-	}
-	return (1);
-}
-
