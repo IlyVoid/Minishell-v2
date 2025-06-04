@@ -244,3 +244,11 @@ void	disable_signals(void)
 	}
 }
 
+void	handle_interrupted_execution(t_shell *shell)
+{
+	if (shell)
+	{
+		shell->heredoc_active = 0;
+		shell->exit_status = 130;
+	}
+}
