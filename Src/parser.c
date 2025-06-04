@@ -158,6 +158,7 @@ static char	*parse_word(char *input, int *i)
 	int		len;
 
 	start = *i;
+	value = NULL;
 	while (input[*i] && !is_delimiter(input[*i]))
 	{
 		if (input[*i] == '\'' || input[*i] == '\"')
