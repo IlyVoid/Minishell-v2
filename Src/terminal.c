@@ -60,36 +60,6 @@ int	setup_terminal(t_shell *shell)
 		print_error("SetConsoleMode", NULL, "failed to set console mode");
 		return (ERROR);
 	}
-
-#else
-	// Unix-specific terminal setup
-	struct termios	term;
-
-	// Save original terminal attributes
-	if (tcgetattr(STDIN_FILENO, &shell->orig_termios) == -1)
-	{
-		print_error("tcgetattr", NULL, "failed to get terminal attributes");
-		return (ERROR);
-	}
-	
-	shell->term_saved = 1;
-	
-	// Make a copy of the original attributes
-	term = shell->orig_termios;
-	
-	// Modify terminal settings:
-	// - Disable echo to avoid echoing control characters
-	// - Disable canonical mode to allow control character processing
-	term.c_lflag &= ~(ECHOCTL);
-	
-	// Apply the modified settings
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &term) == -1)
-	{
-		print_error("tcsetattr", NULL, "failed to set terminal attributes");
-		return (ERROR);
-	}
-#endif
-	
 	return (SUCCESS);
 }
 
@@ -122,14 +92,6 @@ int	restore_terminal(t_shell *shell)
 			print_error("SetConsoleMode", NULL, "failed to restore console mode");
 			return (ERROR);
 		}
-#else
-		// Unix-specific terminal restoration
-		if (tcsetattr(STDIN_FILENO, TCSANOW, &shell->orig_termios) == -1)
-		{
-			print_error("tcsetattr", NULL, "failed to restore terminal attributes");
-			return (ERROR);
-		}
-#endif
 		shell->term_saved = 0;
 	}
 	
