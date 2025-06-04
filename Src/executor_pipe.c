@@ -132,11 +132,7 @@ int	execute_single_command(t_command *cmd, t_shell *shell,
 		return (execute_builtin_directly(cmd, shell, out_fd));
 	
 	// Set up signal handlers for execution
-	if (setup_exec_signals() != SUCCESS)
-	{
-		print_error("execute_command", NULL, "failed to set up signals");
-		// Continue anyway, as this is not a critical error
-	}
+	setup_exec_signals()
 	
 	// Create child process
 	pid = fork();
@@ -166,11 +162,7 @@ int	execute_single_command(t_command *cmd, t_shell *shell,
 		}
 		
 		// Restore interactive mode signals
-		if (setup_signals() != SUCCESS)
-		{
-			print_error("execute_command", NULL, "failed to restore signals");
-			// Continue anyway and return the status
-		}
+		setup_signals();
 		
 		// Check if waitpid failed for a reason other than interruption
 		if (wait_result == -1)
