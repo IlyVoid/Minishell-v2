@@ -24,16 +24,6 @@ int	is_whitespace(char c)
 }
 
 /**
- * Check if a character is a token delimiter
- * @param c Character to check
- * @return 1 if the character is a delimiter, 0 otherwise
- */
-int	is_delimiter(char c)
-{
-	return (is_whitespace(c) || c == '|' || c == '<' || c == '>' || c == '\0');
-}
-
-/**
  * Parse a quoted string
  * @param input Input string
  * @param i Pointer to the current position in the input

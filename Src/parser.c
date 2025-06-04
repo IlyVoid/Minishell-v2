@@ -89,17 +89,6 @@ void	free_tokens(t_token *tokens)
 }
 
 /**
- * Check if a character is a whitespace
- * @param c Character to check
- * @return 1 if the character is a whitespace, 0 otherwise
- */
-int		is_whitespace(char c)
-{
-	return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f'
-		|| c == '\r');
-}
-
-/**
  * Check if a character is a token delimiter
  * @param c Character to check
  * @return 1 if the character is a delimiter, 0 otherwise
