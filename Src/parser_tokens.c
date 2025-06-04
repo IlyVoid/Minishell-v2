@@ -130,6 +130,37 @@ char	*parse_word(char *input, int *i)
 	return (finalize_word(value, input, start, *i));
 }
 
+int	add_token_safely(t_token **tokens, t_token *new_token)
+{
+	if (!new_token)
+		return (0);
+	add_token(tokens, new_token);
+	return (1);
+}
+
+t_token	*free_tokens_return_null(t_token *tokens)
+{
+	free_tokens(tokens);
+	return (NULL);
+}
+
+int	handle_word_token(char *input, int *i, t_token **tokens)
+{
+	char	*value;
+	t_token	*new_token;
+
+	value = parse_word(input, i);
+	if (!value)
+		return (0);
+	new_token = create_token(TOKEN_WORD, value);
+	free(value);
+	if (!new_token || !add_token_safely(tokens, new_token))
+		return (0);
+	return (1);
+}
+
+
+
 /**
  * Tokenize the input string
  * @param input Input string to tokenize
