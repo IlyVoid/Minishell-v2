@@ -117,7 +117,7 @@ t_command	*parse_tokens(t_token *tokens, t_shell *shell);
 void		free_commands(t_command *commands);
 int			expand_variables(t_token *tokens, t_env *env_list, int exit_status);
 char		*finalize_word(char *value, char *input, int start, int end);
-int			handle_operator_token(const char *str, int *index);
+t_token		*handle_operator_token(const char *str, int *index);
 int			is_delimiter(char c);
 int			is_whitespace(char c);
 int			handle_quoted_word(char **value, char *input, int *i);

@@ -36,25 +36,29 @@ t_token	*create_token(t_token_type type, char *value)
 	return (token);
 }
 
-int	handle_operator_token(const char *str, int *index)
+t_token	*handle_operator_token(const char *str, int *index)
 {
-	int	count;
+	t_token	*token;
+	char	op[3] = {0};
+	int		len = 0;
 
-	count = 0;
 	if ((str[*index] == '<' && str[*index + 1] == '<')
 		|| (str[*index] == '>' && str[*index + 1] == '>'))
 	{
-		count++;
-		*index += 2;
-		return (count);
+		op[0] = str[*index];
+		op[1] = str[*index + 1];
+		len = 2;
 	}
-	if (str[*index] == '<' || str[*index] == '>' || str[*index] == '|')
+	else if (str[*index] == '<' || str[*index] == '>' || str[*index] == '|')
 	{
-		count++;
-		(*index)++;
-		return (count);
+		op[0] = str[*index];
+		len = 1;
 	}
-	return (0);
+	else
+		return (NULL);
+	*index += len;
+	token = create_token(TOKEN_OPERATOR, op);
+	return (token);
 }
 
 /**
@@ -159,8 +163,6 @@ int	handle_word_token(char *input, int *i, t_token **tokens)
 	return (1);
 }
 
-
-
 /**
  * Tokenize the input string
  * @param input Input string to tokenize
@@ -171,7 +173,6 @@ t_token	*tokenize_input(char *input)
 	t_token		*tokens;
 	t_token		*new_token;
 	int			i;
-	char		*value;
 
 	if (!input)
 		return (NULL);
