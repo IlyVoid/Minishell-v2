@@ -132,7 +132,7 @@ int	execute_single_command(t_command *cmd, t_shell *shell,
 		return (execute_builtin_directly(cmd, shell, out_fd));
 	
 	// Set up signal handlers for execution
-	setup_exec_signals()
+	setup_exec_signals();
 	
 	// Create child process
 	pid = fork();
