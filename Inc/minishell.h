@@ -116,6 +116,9 @@ void		free_tokens(t_token *tokens);
 t_command	*parse_tokens(t_token *tokens, t_shell *shell);
 void		free_commands(t_command *commands);
 int			expand_variables(t_token *tokens, t_env *env_list, int exit_status);
+char		*finalize_word(char *value, char *input, int start, int end);
+int			handle_operator_token(const char *str, int *index);
+
 
 /* Environment functions */
 t_env		*init_env(char **envp);
@@ -191,6 +194,8 @@ void		*ft_memset(void *b, int c, size_t len);
 char		*ft_strrchr(const char *s, int c);
 char		*ft_strstr(char *str, char *to_find);
 void		ft_putchar_fd(char c, int fd);
+int			is_whitespace(char c);
+int			is_delimiter(char *str);
 
 /* Signal handling */
 int			setup_signals(void);
@@ -203,7 +208,7 @@ void		handle_sigint_exec(int sig);
 void		handle_sigint_heredoc(int sig);
 void		handle_sigquit_interactive(int sig);
 void		handle_sigquit_exec(int sig);
-int		set_signal_mode(t_shell *shell, int mode);
+int			set_signal_mode(t_shell *shell, int mode);
 
 /* Shell initialization and management */
 t_shell		*init_shell(char **envp);

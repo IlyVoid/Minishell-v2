@@ -36,6 +36,27 @@ t_token	*create_token(t_token_type type, char *value)
 	return (token);
 }
 
+int	handle_operator_token(const char *str, int *index)
+{
+	int	count;
+
+	count = 0;
+	if ((str[*index] == '<' && str[*index + 1] == '<')
+		|| (str[*index] == '>' && str[*index + 1] == '>'))
+	{
+		count++;
+		*index += 2;
+		return (count);
+	}
+	if (str[*index] == '<' || str[*index] == '>' || str[*index] == '|')
+	{
+		count++;
+		(*index)++;
+		return (count);
+	}
+	return (0);
+}
+
 /**
  * Add a token to the end of the token list
  * @param tokens Pointer to the token list

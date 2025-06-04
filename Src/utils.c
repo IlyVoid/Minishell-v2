@@ -30,6 +30,34 @@ void	*ft_malloc(size_t size)
 	return (ptr);
 }
 
+int	is_whitespace(char c)
+{
+	if (c == ' ' || c == '\t' || c == '\f' || c == '\r' || c == '\v')
+		return (1);
+	return (0);
+}
+
+int	is_delimiter(char *str)
+{
+	if (str == NULL)
+		return (1);
+	if (str[0] == '\0')
+		return (0);
+	if (str[0] == '>' && str[1] == '\0')
+		return (1);
+	if (str[0] == '<' && str[1] == '\0')
+		return (1);
+	if (str[0] == '|' && str[1] == '\0')
+		return (1);
+	if (str[0] == ';' && str[1] == '\0')
+		return (1);
+	if (str[0] == '>' && str[1] == '>' && str[2] == '\0')
+		return (1);
+	if (str[0] == '<' && str[1] == '<' && str[2] == '\0')
+		return (1);
+	return (0);
+}
+
 /**
  * Calculate the length of a string
  * @param s The string to measure
