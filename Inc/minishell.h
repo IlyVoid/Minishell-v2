@@ -200,11 +200,11 @@ char		*ft_strstr(char *str, char *to_find);
 void		ft_putchar_fd(char c, int fd);
 
 /* Signal handling */
-int			setup_signals(void);
-int			setup_exec_signals(void);
-int			setup_heredoc_signals(void);
-int			reset_signals(void);
-int			disable_signals(void);
+void		setup_signals(void);
+void		setup_exec_signals(void);
+void		setup_heredoc_signals(void);
+void		reset_signals(void);
+void		disable_signals(void);
 void		handle_sigint_interactive(int sig);
 void		handle_sigint_exec(int sig);
 void		handle_sigint_heredoc(int sig);
