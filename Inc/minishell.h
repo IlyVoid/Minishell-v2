@@ -118,6 +118,8 @@ void		free_commands(t_command *commands);
 int			expand_variables(t_token *tokens, t_env *env_list, int exit_status);
 char		*finalize_word(char *value, char *input, int start, int end);
 int			handle_operator_token(const char *str, int *index);
+int			is_delimiter(char c);
+int			is_whitespace(char c);
 
 
 /* Environment functions */
@@ -194,8 +196,6 @@ void		*ft_memset(void *b, int c, size_t len);
 char		*ft_strrchr(const char *s, int c);
 char		*ft_strstr(char *str, char *to_find);
 void		ft_putchar_fd(char c, int fd);
-int			is_whitespace(char c);
-int			is_delimiter(char *str);
 
 /* Signal handling */
 int			setup_signals(void);
